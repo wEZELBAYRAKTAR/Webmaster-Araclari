@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modern Geliştirici Araç Kiti</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #111827;
+            color: #d1d5db;
+        }
+        .tool-card {
+            background-color: #1f2937;
+            border: 1px solid #374151;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+        }
+        .tool-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(59, 130, 246, 0.2), 0 4px 6px -2px rgba(59, 130, 246, 0.1);
+        }
+        .modal-backdrop {
+            background-color: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
+            z-index: 40;
+        }
+        .modal-content {
+            background-color: #1f2937;
+            z-index: 50;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .btn-primary {
+            background-color: #3b82f6;
+            color: white;
+            transition: background-color 0.2s;
+        }
+        .btn-primary:hover {
+            background-color: #2563eb;
+        }
+        .btn-secondary {
+            background-color: #4b5563;
+            color: white;
+            transition: background-color 0.2s;
+        }
+        .btn-secondary:hover {
+            background-color: #374151;
+        }
+        .input-field, .textarea-field, .select-field {
+            background-color: #374151;
+            border: 1px solid #4b5563;
+            color: #d1d5db;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+        }
+        .input-field:focus, .textarea-field:focus, .select-field:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 2px #1e40af;
+        }
+        .copy-btn {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            background-color: #4b5563;
+            padding: 0.5rem;
+            border-radius: 0.375rem;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+        }
+        .copy-btn:hover {
+            opacity: 1;
+        }
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #22c55e;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 9999px;
+            z-index: 100;
+            opacity: 0;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+    </style>
+</head>
+<body class="p-4 sm:p-8">
+
+    <div class="container mx-auto max-w-7xl">
+        <header class="text-center mb-12">
+            <h1 class="text-4xl sm:text-5xl font-bold text-white mb-2">Modern Geliştirici Araç Kiti</h1>
+            <p class="text-lg text-gray-400">İhtiyacım olan tüm araçlar tek bir yerde.</p>
+        </header>
+
+        <main class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            <div class="tool-card rounded-lg p-6 flex flex-col items-center text-center" data-modal="kdv-modal">
+                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line><line x1="10" y1="12" x2="14" y2="12"></line><path d="M15 9l-3 3-3-3"></path></svg>
+                <h3 class="text-xl font-semibold text-white mt-4">KDV Hesaplama</h3>
+                <p class="text-gray-400 mt-2 text-sm">Farklı KDV oranlarıyla hızlı fiyat hesaplamaları yapın.</p>
+            </div>
+
+            <div class="tool-card rounded-lg p-6 flex flex-col items-center text-center" data-modal="hash-modal">
+                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                <h3 class="text-xl font-semibold text-white mt-4">Şifreleme Araçları</h3>
+                <p class="text-gray-400 mt-2 text-sm">MD5 ve SHA1 şifreleme fonksiyonları.</p>
+            </div>
+
+            <div class="tool-card rounded-lg p-6 flex flex-col items-center text-center" data-modal="encode-modal">
+                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 20H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h6"></path><polyline points="14 14 20 8 14 2"></polyline><line x1="20" y1="8" x2="7" y2="8"></line></svg>
+                <h3 class="text-xl font-semibold text-white mt-4">Encoding/Decoding</h3>
+                <p class="text-gray-400 mt-2 text-sm">Base64 ve URL encode/decode işlemleri.</p>
+            </div>
+
+            <div class="tool-card rounded-lg p-6 flex flex-col items-center text-center" data-modal="text-modal">
+                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                <h3 class="text-xl font-semibold text-white mt-4">Metin İşleme</h3>
+                <p class="text-gray-400 mt-2 text-sm">Metin tersine çevirme, kelime ve karakter sayma.</p>
+            </div>
+            
+            <div class="tool-card rounded-lg p-6 flex flex-col items-center text-center" data-modal="password-modal">
+                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                <h3 class="text-xl font-semibold text-white mt-4">Güçlü Şifre Oluşturucu</h3>
+                <p class="text-gray-400 mt-2 text-sm">Güvenli ve özelleştirilebilir şifreler oluşturun.</p>
+            </div>
+
+            <div class="tool-card rounded-lg p-6 flex flex-col items-center text-center" data-modal="ip-modal">
+                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+                <h3 class="text-xl font-semibold text-white mt-4">IP Adresim Nedir?</h3>
+                <p class="text-gray-400 mt-2 text-sm">Genel IP adresinizi anında görüntüleyin.</p>
+            </div>
+
+            <div class="tool-card rounded-lg p-6 flex flex-col items-center text-center" data-modal="date-modal">
+                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                <h3 class="text-xl font-semibold text-white mt-4">Tarih Dönüştürücü</h3>
+                <p class="text-gray-400 mt-2 text-sm">Çeşitli formatlar arasında tarih dönüştürün.</p>
+            </div>
+
+            <div class="tool-card rounded-lg p-6 flex flex-col items-center text-center" data-modal="text-shorten-modal">
+                 <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                <h3 class="text-xl font-semibold text-white mt-4">Metin Kısaltma</h3>
+                <p class="text-gray-400 mt-2 text-sm">Uzun metinleri belirli bir uzunluğa kısaltın.</p>
+            </div>
+        </main>
+    </div>
+
+    <div id="modal-container"></div>
+    <div id="toast-container" class="toast">Kopyalandı!</div>
+
+    <script>
+        // --- TEMEL MODAL VE UYARI SİSTEMİNİ BURADA YÖNETİYORUM - Ömer Faruk DEMİR ---
+        const modalContainer = document.getElementById('modal-container');
+        const toolCards = document.querySelectorAll('.tool-card');
+        const toastContainer = document.getElementById('toast-container');
+
+        // Kullanıcıya geri bildirim vermek için bir uyarı (toast) fonksiyonu yazdım - Ömer Faruk DEMİR
+        function showToast(message) {
+            toastContainer.textContent = message;
+            toastContainer.classList.add('show');
+            setTimeout(() => {
+                toastContainer.classList.remove('show');
+            }, 2000);
+        }
+        
+        // Sonuçları kolayca alabilmek için panoya kopyalama fonksiyonu - Ömer Faruk DEMİR
+        function copyToClipboard(text, element) {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+            showToast('Panoya kopyalandı!');
+        }
+
+        // Açılan araç penceresini (modal) kapatmak için bu fonksiyonu kullanıyorum - Ömer Faruk DEMİR
+        function closeModal() {
+            modalContainer.innerHTML = '';
+        }
+
+        // Kartlara tıklandığında ilgili aracı açacak ana modal fonksiyonum - Ömer Faruk DEMİR
+        function openModal(modalId) {
+            const modalContent = getModalContent(modalId);
+            if (!modalContent) return;
+
+            modalContainer.innerHTML = `
+                <div class="modal-backdrop fixed inset-0 flex items-center justify-center p-4">
+                    <div class="modal-content w-full max-w-2xl rounded-lg shadow-lg p-6 relative">
+                        <button class="absolute top-4 right-4 text-gray-400 hover:text-white" onclick="closeModal()">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                        </button>
+                        ${modalContent}
+                    </div>
+                </div>
+            `;
+            // Kullanım kolaylığı için modalın dışına tıklanınca kapanmasını sağladım - Ömer Faruk DEMİR
+            const modalBackdrop = modalContainer.querySelector('.modal-backdrop');
+            modalBackdrop.addEventListener('click', (e) => {
+                if (e.target === modalBackdrop) {
+                    closeModal();
+                }
+            });
+            // Her modalın kendi javascript kodunu bu şekilde çalıştırıyorum - Ömer Faruk DEMİR
+            runModalScript(modalId);
+        }
+
+        // Ana menüdeki her bir karta tıklama özelliği ekliyorum - Ömer Faruk DEMİR
+        toolCards.forEach(card => {
+            card.addEventListener('click', () => {
+                openModal(card.dataset.modal);
+            });
+        });
+
+        // --- ARAÇLARIN HTML İSKELETİ VE JAVASCRIPT FONKSİYONLARI - Ömer Faruk DEMİR ---
+
+        function getModalContent(modalId) {
+            const modals = {
+                'kdv-modal': `
+                    <h3 class="text-2xl font-bold text-white mb-6">KDV Hesaplayıcı</h3>
+                    <div class="space-y-4">
+                        <div>
+                            <label for="kdv-price" class="block mb-2 text-sm font-medium text-gray-300">Fiyat (KDV Hariç)</label>
+                            <input type="number" id="kdv-price" class="input-field w-full" placeholder="Örn: 100">
+                        </div>
+                        <div>
+                            <label for="kdv-rate" class="block mb-2 text-sm font-medium text-gray-300">KDV Oranı</label>
+                            <select id="kdv-rate" class="select-field w-full">
+                                <option value="20">20%</option>
+                                <option value="10">10%</option>
+                                <option value="8">8%</option>
+                                <option value="1">1%</option>
+                            </select>
+                        </div>
+                        <div id="kdv-result" class="mt-6 p-4 rounded-lg bg-gray-800 text-center space-y-2 hidden">
+                            <p class="text-gray-400">KDV Tutarı: <span id="kdv-amount" class="text-xl font-bold text-white"></span></p>
+                            <p class="text-gray-400">Toplam Fiyat (KDV Dahil): <span id="kdv-total" class="text-2xl font-bold text-blue-400"></span></p>
+                        </div>
+                    </div>
+                `,
+                'hash-modal': `
+                    <h3 class="text-2xl font-bold text-white mb-6">Şifreleme (Hashing)</h3>
+                    <div class="space-y-4">
+                        <textarea id="hash-input" class="textarea-field w-full h-32" placeholder="Şifrelenecek metni buraya girin..."></textarea>
+                        <div class="flex space-x-4">
+                           <button id="md5-btn" class="btn-primary w-full py-2 rounded-md">MD5 Oluştur</button>
+                           <button id="sha1-btn" class="btn-primary w-full py-2 rounded-md">SHA1 Oluştur</button>
+                        </div>
+                        <div class="relative mt-4">
+                            <label class="block mb-2 text-sm font-medium text-gray-300">MD5 Sonucu</label>
+                            <input id="md5-output" type="text" class="input-field w-full pr-12" readonly>
+                            <button class="copy-btn" onclick="copyToClipboard(document.getElementById('md5-output').value, this)"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button>
+                        </div>
+                         <div class="relative mt-4">
+                            <label class="block mb-2 text-sm font-medium text-gray-300">SHA1 Sonucu</label>
+                            <input id="sha1-output" type="text" class="input-field w-full pr-12" readonly>
+                            <button class="copy-btn" onclick="copyToClipboard(document.getElementById('sha1-output').value, this)"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button>
+                        </div>
+                    </div>
+                `,
+                'encode-modal':`
+                    <h3 class="text-2xl font-bold text-white mb-6">Encode / Decode</h3>
+                    <div class="space-y-6">
+                        <div>
+                            <h4 class="text-lg font-semibold text-blue-400 mb-2">Base64</h4>
+                            <textarea id="base64-input" class="textarea-field w-full h-24" placeholder="Base64 için metin..."></textarea>
+                            <div class="flex space-x-4 mt-2">
+                                <button id="base64-encode-btn" class="btn-secondary w-full py-2 rounded-md">Encode</button>
+                                <button id="base64-decode-btn" class="btn-secondary w-full py-2 rounded-md">Decode</button>
+                            </div>
+                        </div>
+                        <div>
+                            <h4 class="text-lg font-semibold text-blue-400 mb-2">URL</h4>
+                            <textarea id="url-input" class="textarea-field w-full h-24" placeholder="URL için metin..."></textarea>
+                            <div class="flex space-x-4 mt-2">
+                                <button id="url-encode-btn" class="btn-secondary w-full py-2 rounded-md">Encode</button>
+                                <button id="url-decode-btn" class="btn-secondary w-full py-2 rounded-md">Decode</button>
+                            </div>
+                        </div>
+                    </div>
+                `,
+                'text-modal': `
+                    <h3 class="text-2xl font-bold text-white mb-6">Metin Analizi</h3>
+                    <textarea id="text-input" class="textarea-field w-full h-32" placeholder="Analiz edilecek metni buraya girin..."></textarea>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-4 text-center">
+                        <div class="bg-gray-800 p-4 rounded-lg">
+                            <div class="text-gray-400 text-sm">Kelime Sayısı</div>
+                            <div id="word-count" class="text-2xl font-bold text-white">0</div>
+                        </div>
+                        <div class="bg-gray-800 p-4 rounded-lg">
+                            <div class="text-gray-400 text-sm">Karakter Sayısı</div>
+                            <div id="char-count" class="text-2xl font-bold text-white">0</div>
+                        </div>
+                        <div class="bg-gray-800 p-4 rounded-lg">
+                             <div class="text-gray-400 text-sm">Satır Sayısı</div>
+                            <div id="line-count" class="text-2xl font-bold text-white">0</div>
+                        </div>
+                    </div>
+                    <div class="mt-4 relative">
+                         <label class="block mb-2 text-sm font-medium text-gray-300">Ters Çevrilmiş Metin</label>
+                         <textarea id="reversed-text" class="textarea-field w-full h-24 pr-12" readonly></textarea>
+                         <button class="copy-btn" onclick="copyToClipboard(document.getElementById('reversed-text').value, this)"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button>
+                    </div>
+                `,
+                'password-modal': `
+                    <h3 class="text-2xl font-bold text-white mb-6">Güçlü Şifre Oluşturucu</h3>
+                    <div class="relative mb-4">
+                        <input id="password-output" type="text" class="input-field w-full text-lg pr-12" readonly placeholder="Oluşturmak için butona tıklayın">
+                        <button class="copy-btn" onclick="copyToClipboard(document.getElementById('password-output').value, this)"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button>
+                    </div>
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between">
+                            <label for="pass-length" class="text-gray-300">Şifre Uzunluğu: <span id="pass-length-val">16</span></label>
+                            <input id="pass-length" type="range" min="8" max="32" value="16" class="w-1/2">
+                        </div>
+                        <div class="flex items-center">
+                            <input id="pass-uppercase" type="checkbox" class="h-4 w-4 rounded" checked>
+                            <label for="pass-uppercase" class="ml-2 text-gray-300">Büyük Harf (A-Z)</label>
+                        </div>
+                        <div class="flex items-center">
+                            <input id="pass-numbers" type="checkbox" class="h-4 w-4 rounded" checked>
+                            <label for="pass-numbers" class="ml-2 text-gray-300">Rakam (0-9)</label>
+                        </div>
+                        <div class="flex items-center">
+                            <input id="pass-symbols" type="checkbox" class="h-4 w-4 rounded" checked>
+                            <label for="pass-symbols" class="ml-2 text-gray-300">Sembol (!@#$%^&*)</label>
+                        </div>
+                    </div>
+                    <button id="generate-pass-btn" class="btn-primary w-full py-2.5 rounded-md mt-6">Yeni Şifre Oluştur</button>
+                `,
+                'ip-modal': `
+                    <h3 class="text-2xl font-bold text-white mb-6">IP Adresim</h3>
+                    <div class="text-center bg-gray-800 p-8 rounded-lg">
+                        <p class="text-gray-400 mb-2">Genel IP Adresiniz</p>
+                        <p id="ip-address" class="text-3xl font-bold text-blue-400">Yükleniyor...</p>
+                        <button class="copy-btn" style="position: static; margin-top: 1rem;" onclick="copyToClipboard(document.getElementById('ip-address').textContent, this)">Kopyala</button>
+                    </div>
+                `,
+                'date-modal': `
+                    <h3 class="text-2xl font-bold text-white mb-6">Tarih Dönüştürücü</h3>
+                     <div class="space-y-4">
+                        <input type="text" id="date-input" class="input-field w-full" placeholder="Dönüştürülecek tarihi girin (örn: 2023-12-25)">
+                        <button id="date-convert-btn" class="btn-primary w-full py-2 rounded-md">Dönüştür</button>
+                        <div id="date-output-container" class="space-y-2 mt-4 hidden">
+                            <p><strong>Unix Timestamp:</strong> <span id="date-unix"></span></p>
+                            <p><strong>ISO 8601:</strong> <span id="date-iso"></span></p>
+                            <p><strong>Lokal Zaman:</strong> <span id="date-local"></span></p>
+                            <p><strong>GG.AA.YYYY:</strong> <span id="date-dmy"></span></p>
+                        </div>
+                     </div>
+                `,
+                'text-shorten-modal': `
+                    <h3 class="text-2xl font-bold text-white mb-6">Metin Kısaltıcı</h3>
+                    <div class="space-y-4">
+                        <textarea id="shorten-input" class="textarea-field w-full h-32" placeholder="Kısaltılacak metni girin..."></textarea>
+                        <div>
+                            <label for="shorten-length" class="block mb-2 text-sm font-medium text-gray-300">Maksimum Uzunluk</label>
+                            <input type="number" id="shorten-length" class="input-field w-full" value="100">
+                        </div>
+                        <button id="shorten-btn" class="btn-primary w-full py-2 rounded-md">Kısalt</button>
+                        <div class="relative mt-4">
+                            <label class="block mb-2 text-sm font-medium text-gray-300">Kısaltılmış Metin</label>
+                            <textarea id="shorten-output" class="textarea-field w-full h-24 pr-12" readonly></textarea>
+                            <button class="copy-btn" onclick="copyToClipboard(document.getElementById('shorten-output').value, this)"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button>
+                        </div>
+                    </div>
+                `
+            };
+            return modals[modalId] || null;
+        }
+
+        function runModalScript(modalId) {
+            switch(modalId) {
+                case 'kdv-modal': {
+                    const priceInput = document.getElementById('kdv-price');
+                    const rateSelect = document.getElementById('kdv-rate');
+                    const resultDiv = document.getElementById('kdv-result');
+                    const kdvAmountSpan = document.getElementById('kdv-amount');
+                    const totalSpan = document.getElementById('kdv-total');
+
+                    function calculateKdv() {
+                        const price = parseFloat(priceInput.value);
+                        const rate = parseInt(rateSelect.value);
+                        if (isNaN(price) || price <= 0) {
+                            resultDiv.classList.add('hidden');
+                            return;
+                        }
+                        const kdvAmount = (price * rate) / 100;
+                        const total = price + kdvAmount;
+                        kdvAmountSpan.textContent = kdvAmount.toFixed(2) + ' TL';
+                        totalSpan.textContent = total.toFixed(2) + ' TL';
+                        resultDiv.classList.remove('hidden');
+                    }
+                    priceInput.addEventListener('input', calculateKdv);
+                    rateSelect.addEventListener('change', calculateKdv);
+                    break;
+                }
+                case 'hash-modal': {
+                    const input = document.getElementById('hash-input');
+                    document.getElementById('md5-btn').addEventListener('click', () => {
+                         document.getElementById('md5-output').value = CryptoJS.MD5(input.value).toString();
+                    });
+                    document.getElementById('sha1-btn').addEventListener('click', () => {
+                         document.getElementById('sha1-output').value = CryptoJS.SHA1(input.value).toString();
+                    });
+                    break;
+                }
+                case 'encode-modal': {
+                    const base64Input = document.getElementById('base64-input');
+                    document.getElementById('base64-encode-btn').addEventListener('click', () => {
+                        try { base64Input.value = btoa(unescape(encodeURIComponent(base64Input.value))); } catch (e) { base64Input.value = 'Hatalı giriş'; }
+                    });
+                    document.getElementById('base64-decode-btn').addEventListener('click', () => {
+                        try { base64Input.value = decodeURIComponent(escape(atob(base64Input.value))); } catch (e) { base64Input.value = 'Hatalı Base64 verisi'; }
+                    });
+
+                    const urlInput = document.getElementById('url-input');
+                    document.getElementById('url-encode-btn').addEventListener('click', () => {
+                        urlInput.value = encodeURIComponent(urlInput.value);
+                    });
+                    document.getElementById('url-decode-btn').addEventListener('click', () => {
+                        try { urlInput.value = decodeURIComponent(urlInput.value); } catch (e) { urlInput.value = 'Hatalı URL verisi'; }
+                    });
+                    break;
+                }
+                case 'text-modal': {
+                    const input = document.getElementById('text-input');
+                    const wordCount = document.getElementById('word-count');
+                    const charCount = document.getElementById('char-count');
+                    const lineCount = document.getElementById('line-count');
+                    const reversedText = document.getElementById('reversed-text');
+
+                    function analyzeText() {
+                        const text = input.value;
+                        charCount.textContent = text.length;
+                        wordCount.textContent = text.trim().split(/\s+/).filter(Boolean).length;
+                        lineCount.textContent = text.split('\n').length;
+                        reversedText.value = text.split('').reverse().join('');
+                    }
+                    input.addEventListener('input', analyzeText);
+                    break;
+                }
+                 case 'password-modal': {
+                    const output = document.getElementById('password-output');
+                    const lengthSlider = document.getElementById('pass-length');
+                    const lengthVal = document.getElementById('pass-length-val');
+                    const uppercaseCheck = document.getElementById('pass-uppercase');
+                    const numbersCheck = document.getElementById('pass-numbers');
+                    const symbolsCheck = document.getElementById('pass-symbols');
+                    const generateBtn = document.getElementById('generate-pass-btn');
+
+                    lengthSlider.addEventListener('input', () => lengthVal.textContent = lengthSlider.value);
+
+                    function generatePassword() {
+                        const length = lengthSlider.value;
+                        const chars = {
+                            lower: 'abcdefghijklmnopqrstuvwxyz',
+                            upper: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+                            numbers: '0123456789',
+                            symbols: '!@#$%^&*()_+-=[]{}|;:,.<>?'
+                        };
+                        let charset = chars.lower;
+                        if (uppercaseCheck.checked) charset += chars.upper;
+                        if (numbersCheck.checked) charset += chars.numbers;
+                        if (symbolsCheck.checked) charset += chars.symbols;
+                        
+                        let password = '';
+                        for (let i = 0; i < length; i++) {
+                            password += charset.charAt(Math.floor(Math.random() * charset.length));
+                        }
+                        output.value = password;
+                    }
+                    generateBtn.addEventListener('click', generatePassword);
+                    generatePassword(); // Sayfa ilk açıldığında hazır bir şifre görünsün diye bunu ekledim - Ömer Faruk DEMİR
+                    break;
+                }
+                case 'ip-modal': {
+                    const ipAddressP = document.getElementById('ip-address');
+                    fetch('https://api.ipify.org?format=json')
+                        .then(response => response.json())
+                        .then(data => ipAddressP.textContent = data.ip)
+                        .catch(error => ipAddressP.textContent = 'IP alınamadı.');
+                    break;
+                }
+                case 'date-modal': {
+                    document.getElementById('date-convert-btn').addEventListener('click', () => {
+                        const inputVal = document.getElementById('date-input').value;
+                        const outputContainer = document.getElementById('date-output-container');
+                        try {
+                            const date = new Date(inputVal);
+                            if (isNaN(date)) throw new Error('Geçersiz tarih');
+                            
+                            document.getElementById('date-unix').textContent = Math.floor(date.getTime() / 1000);
+                            document.getElementById('date-iso').textContent = date.toISOString();
+                            document.getElementById('date-local').textContent = date.toLocaleString('tr-TR');
+                            document.getElementById('date-dmy').textContent = date.toLocaleDateString('tr-TR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+
+                            outputContainer.classList.remove('hidden');
+                        } catch (e) {
+                            outputContainer.classList.add('hidden');
+                            showToast('Lütfen geçerli bir tarih girin.');
+                        }
+                    });
+                    break;
+                }
+                case 'text-shorten-modal': {
+                    document.getElementById('shorten-btn').addEventListener('click', () => {
+                        const text = document.getElementById('shorten-input').value;
+                        const length = parseInt(document.getElementById('shorten-length').value);
+                        const output = document.getElementById('shorten-output');
+
+                        if (text.length > length) {
+                            output.value = text.substring(0, length) + '...';
+                        } else {
+                            output.value = text;
+                        }
+                    });
+                    break;
+                }
+            }
+        }
+    </script>
+</body>
+</html>
